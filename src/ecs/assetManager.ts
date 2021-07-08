@@ -97,10 +97,17 @@ export class AssetManager {
             this._objects.set(src, obj);
             break;
 
-          case "jpg":
+          case "jpg": {
             const tex = result.value as Texture;
             this._textures.set(src, tex);
             break;
+          }
+
+          case "png": {
+            const tex = result.value as Texture;
+            this._textures.set(src, tex);
+            break;
+          }
 
           default:
             break;

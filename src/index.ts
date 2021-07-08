@@ -1,4 +1,4 @@
-import { extend, World } from "./ecs/index";
+import { extend, World, newComponent } from "./ecs/index";
 import { RenderSystem } from "./systems/RenderSystem";
 import { Object3DSystem } from "./systems/Object3DSystem";
 import { AssetManager } from "./ecs/assetManager";
@@ -9,9 +9,11 @@ import { PointLightSystem } from "./systems/PointLightSystem";
 import { Vector3, Color } from "three";
 import { CameraSystem } from "./systems/CameraSystem";
 import { MaterialSystem } from "./systems/MaterialSystem";
+import { CardMaterialSystem } from "./systems/CardMaterialSystem";
 import { StatsSystem } from "./systems/StatsSystem";
 import { HemisphereLightSystem } from "./systems/HemisphereLightSystem";
 import { AnimationSystem } from "./systems/AnimationSystem";
+import { CardMaterialC } from "./ecs/components";
 
 (async () => {
   const assetManager = new AssetManager();
@@ -20,7 +22,8 @@ import { AnimationSystem } from "./systems/AnimationSystem";
 
   assetManager
     .addAsset(CARD_GLTF, "env")
-    .addAsset("assets/textures/env.jpg", "env_tex"); // Environmental texture for PBR material.
+    .addAsset("assets/textures/env.jpg", "env_tex") // Environmental texture for PBR material.
+    .addAsset("assets/textures/sample.jpg", "sample_tex"); // Environmental texture for PBR material.
 
   // Wait untill all assets are loaded
   await assetManager.load();
@@ -33,7 +36,7 @@ import { AnimationSystem } from "./systems/AnimationSystem";
     Asset({
       src: CARD_GLTF,
     }),
-    [/* newComponent(MaterialC, {}) */]
+    [newComponent(CardMaterialC, {})]
   );
 
   const hLight = HemisphereLight({ intensity: 2 });
@@ -54,6 +57,7 @@ import { AnimationSystem } from "./systems/AnimationSystem";
     .registerSystem(HemisphereLightSystem)
     .registerSystem(PointLightSystem)
     .registerSystem(MaterialSystem)
+    .registerSystem(CardMaterialSystem)
     .registerSystem(StatsSystem)
     .registerSystem(AnimationSystem);
 

@@ -53,7 +53,8 @@ export const loadTexture: Loader<Texture> = (src) =>
 export const loaders = {
   fbx: loadFBX,
   glb: loadGLTF,
-  jpg: loadTexture
+  jpg: loadTexture,
+  png: loadTexture
 };
 
 export type AssetType = keyof typeof loaders;

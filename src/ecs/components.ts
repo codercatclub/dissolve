@@ -79,6 +79,16 @@ export const MaterialC = {
   },
 };
 
+export const CardMaterialC = {
+  type: "CardMaterialC",
+  data: {
+    shader: "Card",
+    color1: new Color(0xacb6e5),
+    color2: new Color(0x74ebd5),
+    part: '',
+  },
+};
+
 export const IntervalSpawnerC = {
   type: "IntervalSpawnerC",
   data: null,
