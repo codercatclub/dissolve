@@ -44,18 +44,18 @@ void main() {
   modPrim.y = 0.05 - modPrim.z;
   modPrim.z = 0.0;
   vec4 worldPrimCenter = modelMatrix * vec4( modPrim, 1.0 );
-  vec3 worldNormal = vec3(0.0, 0.0, 1.0);
-
+  vec2 dirToPrim = worldPrimCenter.xy - worldMousePos.xy;
+  vec2 dirToPrimNorm = normalize(dirToPrim);
   float randVal = randz(100.0*_primcenter.xy);
 
-  float distToMousePos = 1.0 - min(length(worldPrimCenter.xy - worldMousePos.xy)/0.2,1.0);
+  float distToMousePos = 1.0 - min(length(dirToPrim)/0.2,1.0);
 
-  worldPosition.xy += 0.01*distToMousePos * normalize(worldPrimCenter.xy - worldMousePos.xy);
+  worldPosition.xy += 0.01*distToMousePos * dirToPrimNorm;
 
   float distToMousePosUnClamp =30.0*pow(length(worldPrimCenter.xy- worldMousePos.xy),4.0) + 0.1;
   float minorMove = 1.0 + 0.05*smoothstep(1.7, 2.0, growthT) * sin(timeMSec + 100.0*randVal);
 
-  worldPosition.xy += growthT * distToMousePosUnClamp * normalize(worldPrimCenter.xy - worldMousePos.xy);
+  worldPosition.xy += growthT * distToMousePosUnClamp * dirToPrimNorm;
   worldPosition.z += 10.0*(distToMousePosUnClamp-0.1)*growthT*randVal*minorMove;
 
   vec4 modelViewPosition = viewMatrix * worldPosition;

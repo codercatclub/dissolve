@@ -58,7 +58,6 @@ import { CardMaterialC } from "./ecs/components";
     .registerSystem(PointLightSystem)
     .registerSystem(MaterialSystem)
     .registerSystem(CardMaterialSystem)
-    .registerSystem(StatsSystem)
     .registerSystem(AnimationSystem);
 
   world.init();

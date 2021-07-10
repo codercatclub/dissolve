@@ -1,13 +1,16 @@
 import { System } from "../ecs/index";
 import { TransformC, Object3DC, CardMaterialC } from "../ecs/components";
 import { applyQuery, Entity, World } from "../ecs/index";
-import { Mesh, UniformsUtils, MeshStandardMaterial,Vector3 } from "three";
+import { Mesh, UniformsUtils, MeshStandardMaterial,Vector3, Vector2 } from "three";
 import { getComponent } from './utils';
 import { RenderSystem } from "./RenderSystem";
 function smoothstep (min, max, value) {
   var x = Math.max(0, Math.min(1, (value-min)/(max-min)));
   return x*x*(3 - 2*x);
 };
+
+
+
 interface CardMaterialSystem extends System {
   world: World | null;
   processEntity: (ent: Entity) => void;
@@ -16,6 +19,8 @@ interface CardMaterialSystem extends System {
   dir: number,
   isGrowing: boolean;
   worldMousePos: Vector3;
+  screenMousePos: Vector2;
+  initScreenPos: boolean;
   camera: THREE.PerspectiveCamera | null;
   updateUniforms: (time: number, timeDelta: number) => void;
 }
@@ -26,6 +31,8 @@ export const CardMaterialSystem: CardMaterialSystem = {
   growthT: 0,
   dir: -1,
   worldMousePos: new Vector3(),
+  screenMousePos: new Vector2(),
+  initScreenPos: false,
   isGrowing: false,
   camera: null,
   materials: [],
@@ -35,7 +42,6 @@ export const CardMaterialSystem: CardMaterialSystem = {
     this.world = world;
     this.entities = applyQuery(world.entities, this.queries);
     this.entities.forEach(this.processEntity.bind(this));
-
     const renderSystem = world.systems.filter((s) => s.type === "RenderSystem")[0] as RenderSystem;
     this.camera = renderSystem.camera;
     this.worldMousePos = new Vector3();
@@ -72,12 +78,12 @@ export const CardMaterialSystem: CardMaterialSystem = {
     parent?.traverse((obj) => {
       if (obj.type === "Mesh") {
         let mesh = obj as Mesh;
-        let sMat = mesh.material as MeshStandardMaterial;
-        // const texture = this.world?.assets.textures.get("assets/textures/sample.jpg");
-        // if(texture) {
-        //   material.map = texture;
-        // }
-        material.map = sMat.map;
+        // let sMat = mesh.material as MeshStandardMaterial;
+        const texture = this.world?.assets.textures.get("assets/textures/sample.jpg");
+        if(texture) {
+          material.map = texture;
+        }
+        // material.map = sMat.map;
         mesh.material = material;
         mesh.material.needsUpdate = true;
       }
@@ -86,23 +92,32 @@ export const CardMaterialSystem: CardMaterialSystem = {
     window.addEventListener("click", (event) => {
       this.isGrowing = true;
       this.dir *= -1;
+      let canvas = document.getElementById("world");
+      canvas?.requestPointerLock();
     });
 
     window.addEventListener("mousemove", (event) => {
       if(!this.camera) return;
 
+      if(!this.initScreenPos) {
+        this.screenMousePos.x = event.clientX;
+        this.screenMousePos.y = event.clientY;
+        this.initScreenPos = true;
+      } else {
+        this.screenMousePos.x += event.movementX;
+        this.screenMousePos.y += event.movementY;
+      }
+
       var vec = new Vector3(); // create once and reuse
-      
       vec.set(
-          ( event.clientX / window.innerWidth ) * 2 - 1,
-          - ( event.clientY / window.innerHeight ) * 2 + 1,
+          ( this.screenMousePos.x / window.innerWidth ) * 2 - 1,
+          - ( this.screenMousePos.y / window.innerHeight ) * 2 + 1,
           0.5 );
       
       vec.unproject( this.camera );
-      
       vec.sub( this.camera.position ).normalize();
       
-      var distance = - this.camera.position.z / vec.z;
+      var distance = (- this.camera.position.z) / vec.z;
       
       this.worldMousePos.copy( this.camera.position ).add( vec.multiplyScalar( distance ) );
     })
@@ -119,8 +134,16 @@ export const CardMaterialSystem: CardMaterialSystem = {
       mat.uniforms["worldMousePos"].value = this.worldMousePos;
 
       if(this.isGrowing) {
-        let speedMult = 0.3 * smoothstep(1.75, 2.0, this.growthT);
-        this.growthT += this.dir * (0.7-speedMult) * timeDelta;
+
+        if(this.dir < 0) {
+          let speedMult =1.5 * (1 - smoothstep(0, 0.8, this.growthT));
+          this.growthT -= (0.7 + speedMult) * timeDelta;
+        } else {
+          let speedMult = 0.3 * smoothstep(1.75, 2.0, this.growthT);
+          this.growthT += (0.3-speedMult) * timeDelta;
+        }
+
+
         if(this.growthT > 2) {
           this.isGrowing = false;
         }
