@@ -73,10 +73,6 @@ export const CardMaterialSystem: CardMaterialSystem = {
       if (obj.type === "Mesh") {
         let mesh = obj as Mesh;
         let sMat = mesh.material as MeshStandardMaterial;
-        // const texture = this.world?.assets.textures.get("assets/textures/sample.jpg");
-        // if(texture) {
-        //   material.map = texture;
-        // }
         material.map = sMat.map;
         mesh.material = material;
         mesh.material.needsUpdate = true;
@@ -105,6 +101,8 @@ export const CardMaterialSystem: CardMaterialSystem = {
       var distance = - this.camera.position.z / vec.z;
       
       this.worldMousePos.copy( this.camera.position ).add( vec.multiplyScalar( distance ) );
+
+      this.worldMousePos.y += 0.05;
     })
   },
 
@@ -117,17 +115,19 @@ export const CardMaterialSystem: CardMaterialSystem = {
     this.materials.forEach((mat) => {
       mat.uniforms["timeMSec"].value = time;
       mat.uniforms["worldMousePos"].value = this.worldMousePos;
-
-      if(this.isGrowing) {
+      if(this.dir < 0) {
+        let speedMult =1.5 * (1 - smoothstep(0, 0.8, this.growthT));
+        this.growthT -= (0.7 + speedMult) * timeDelta;
+      } else {
         let speedMult = 0.3 * smoothstep(1.75, 2.0, this.growthT);
-        this.growthT += this.dir * (0.7-speedMult) * timeDelta;
-        if(this.growthT > 2) {
-          this.isGrowing = false;
-        }
-        if(this.growthT < 0) {
-          this.isGrowing = false;
-          this.growthT = 0.0;
-        }
+        this.growthT += (0.3 - speedMult) * timeDelta;
+      }
+      if(this.growthT > 2) {
+        this.isGrowing = false;
+      }
+      if(this.growthT < 0) {
+        this.isGrowing = false;
+        this.growthT = 0.0;
       }
       mat.uniforms["growthT"].value = this.growthT;
     });

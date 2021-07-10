@@ -23,7 +23,6 @@ import { CardMaterialC } from "./ecs/components";
   assetManager
     .addAsset(CARD_GLTF, "env")
     .addAsset("assets/textures/env.jpg", "env_tex") // Environmental texture for PBR material.
-    .addAsset("assets/textures/sample.jpg", "sample_tex"); // Environmental texture for PBR material.
 
   // Wait untill all assets are loaded
   await assetManager.load();
