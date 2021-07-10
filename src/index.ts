@@ -29,7 +29,7 @@ import { CardMaterialC } from "./ecs/components";
 
   const world = new World(assetManager.loadedAssets);
 
-  const cam = Camera(new Vector3(0, 0, 1));
+  const cam = Camera(new Vector3(0, 0, 0.7));
 
   const card = extend(
     Asset({
@@ -52,12 +52,12 @@ import { CardMaterialC } from "./ecs/components";
     .registerSystem(Object3DSystem)
     .registerSystem(AssetSystem)
     .registerSystem(CameraSystem)
-    .registerSystem(OrbitControlsSystem)
+    // .registerSystem(OrbitControlsSystem)
     .registerSystem(HemisphereLightSystem)
     .registerSystem(PointLightSystem)
     .registerSystem(MaterialSystem)
     .registerSystem(CardMaterialSystem)
-    .registerSystem(StatsSystem)
+    // .registerSystem(StatsSystem)
     .registerSystem(AnimationSystem);
 
   world.init();
